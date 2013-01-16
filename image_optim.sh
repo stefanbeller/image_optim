@@ -1,13 +1,13 @@
 #!/bin/bash
 
-timestartg()
+timestartglobal()
 {
 	TSG=`date +%s.%N`
 }
-timestartg
+timestartglobal
 
 
-timeendg()
+timeendglobal()
 {
 	TEG=`date +%s.%N`
 	TDG=`calc $TEG - $TSG`
@@ -90,4 +90,4 @@ date=`date`
 git commit -a -m "mytrimage $date"
 done
 
-timeendg
+timeendglobal
