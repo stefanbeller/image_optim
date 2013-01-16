@@ -45,7 +45,6 @@ timeend()
 	TD=`calc $TE - $TS`
 }
 
-
 print()
 {
 	${VERBOSE} && echo $1
