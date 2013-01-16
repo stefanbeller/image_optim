@@ -27,7 +27,7 @@ timeend()
 	TD=`calc $TE - $TS`
 }
 
-for i in $(git ls-files ./ | grep "\.jpg$") ; do #jpg (ALSO NEEDS JpEg)
+for i in $(git ls-files ./ | grep -e "\.jpg$" -e "\.jpeg") ; do
 	timestart 
 	jpegoptim --strip-all $i >> /tmp/mytrimage_jpeg.log
 	timeend
