@@ -50,25 +50,30 @@ jpeg_remove_comment_and_exiv()
 	print "$TD"
 }
 
+png_optimize_all()
+{
+	timestart
+	print "starting to optimize pngs"
+	git ls-files ./ | grep "\.png$" | xargs -P 0 -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5  >> /tmp/mytrimage_png.log
+	git ls-files ./ | grep "\.png$" | xargs -P 0 -n 1 advpng -z4 >> /tmp/mytrimage_png.log
+	git ls-files ./ | grep "\.png$" | xargs -P 0 -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/mytrimage_png.log
+
+	for i in $(git ls-files ./ | grep "\.png$") ; do
+		if [[ `du -b $i | awk '{print $1}'` -gt `du -b $i.foo | awk '{print $1}'` ]] ; then
+			mv $i.foo $i
+		else
+			rm $i.foo
+		fi
+	done
+	timeend
+	print "optimizing pngs took $TD"
+}
+
 VERBOSE=true
 timestartglobal
 jpeg_remove_comment_and_exiv
+png_optimize_all
 
-
-for i in $(git ls-files ./ | grep "\.png$"); do # png
-	timestart
-	optipng -zc1-9 -zm1-9 -zs0-3 -f0-5 $i >> /tmp/mytrimage_png.log
-	advpng -z4 $i >> /tmp/mytrimage_png.log
-	pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time $i $i.foo  >> /tmp/mytrimage_png.log
-	#find out if we actually save some bytes or not
-	if [[ `du -b $i | awk '{print $1}'` -gt `du -b $i.foo | awk '{print $1}'` ]] ; then
-		mv $i.foo $i
-	else
-		rm $i.foo
-	fi
-	timeend
-	echo $TD $i
-done & 
 wait
 
 
