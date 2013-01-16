@@ -1,4 +1,8 @@
 #!/bin/bash
+#TODO: also use pngout ?
+
+cpucores=`getconf _NPROCESSORS_ONLN`
+
 
 if [[ $(git rev-parse --is-inside-work-tree) != "true" ]] >& /dev/null ; then
 	echo "fatal: Not a git repository!"
