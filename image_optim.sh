@@ -1,10 +1,5 @@
 #!/bin/bash
 
-#png=`find | grep -v "\.git" | grep "\.png$"`
-#jpg=`find | grep -v "\.git" | grep "\.jpg$"`
-#   find  -maxdepth 1   may be useful
-
-
 timestartg()
 {
 	TSG=`date +%s.%N`
