@@ -26,8 +26,6 @@ timestartglobal()
 {
 	TSG=`date +%s.%N`
 }
-timestartglobal
-
 
 timeendglobal()
 {
@@ -35,8 +33,6 @@ timeendglobal()
 	TDG=`calc $TEG - $TSG`
 	echo "$TDG"
 }
-
-
 
 timestart()
 {
@@ -49,12 +45,25 @@ timeend()
 	TD=`calc $TE - $TS`
 }
 
-for i in $(git ls-files ./ | grep -e "\.jpg$" -e "\.jpeg") ; do
-	timestart 
-	jpegoptim --strip-all $i >> /tmp/image_optim_jpeg.log
+
+print()
+{
+	${VERBOSE} && echo $1
+}
+
+jpeg_remove_comment_and_exiv()
+{
+	print "Removing comments and exiv data from jpegs."
+	timestart
+	git ls-files ./ | grep -e "\.jpg$" -e "\.jpeg" | xargs -P 0 -n 1 jpegoptim --strip-all >> /tmp/image_optim_jpeg.log
 	timeend
-	echo $TD $i
-done &
+	print "$TD"
+}
+
+VERBOSE=true
+timestartglobal
+jpeg_remove_comment_and_exiv
+
 
 for i in $(git ls-files ./ | grep "\.png$"); do # png
 	timestart
