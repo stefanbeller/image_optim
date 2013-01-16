@@ -1,5 +1,11 @@
 #!/bin/bash
 
+echo "WARNING, this script is supposed to be run in a git repo"
+echo "We will create a new branch now which the scriptwill work in."
+git branch script/image_optim
+git checkout script/image_optim
+echo "Done"
+
 timestartglobal()
 {
 	TSG=`date +%s.%N`
