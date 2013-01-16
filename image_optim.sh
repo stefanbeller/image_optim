@@ -5,22 +5,8 @@ echo "To kill the script, run"
 echo "while true ;do ; killall optipng ; killall advpng ; killall pngcrush ; done"
 echo "for a while"
 
-
+VERBOSE=true
 cpucores=`getconf _NPROCESSORS_ONLN`
-
-
-if [[ $(git rev-parse --is-inside-work-tree) != "true" ]] >& /dev/null ; then
-	echo "fatal: Not a git repository!"
-	echo "Make sure to be in a git repo!"
-	echo "Exiting"
-	exit 2
-fi
-
-echo "WARNING, this script is supposed to be run in a git repo"
-echo "We will create a new branch now which the scriptwill work in."
-git branch script/image_optim
-git checkout script/image_optim
-echo "Done"
 
 timestartglobal()
 {
@@ -50,6 +36,23 @@ print()
 	${VERBOSE} && echo $1
 }
 
+make_sure_we_are_safe()
+{
+	if [[ $(git rev-parse --is-inside-work-tree) != "true" ]] >& /dev/null ; then
+		echo "fatal: Not a git repository!"
+		echo "Make sure to be in a git repo!"
+		echo "Exiting"
+		exit 2
+	fi
+
+	echo "WARNING, this script is supposed to be run in a git repo"
+	echo "We will create a new branch now which the scriptwill work in."
+	git branch script/image_optim
+	git checkout script/image_optim
+	echo "Done"
+}
+
+
 jpeg_remove_comment_and_exiv()
 {
 	print "Removing comments and exiv data from jpegs."
@@ -78,9 +81,8 @@ png_optimize_all()
 	print "optimizing pngs took $TD"
 }
 
-VERBOSE=true
-MAX_CORES=8
 timestartglobal
+make_sure_we_are_safe
 jpeg_remove_comment_and_exiv
 png_optimize_all
 wait
