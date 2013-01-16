@@ -66,10 +66,12 @@ png_optimize_all()
 {
 	timestart
 	print "starting to optimize pngs"
-	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5  >> /tmp/mytrimage_png.log
-	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 advpng -z4 >> /tmp/mytrimage_png.log
-	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/mytrimage_png.log
+	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5  >> /tmp/image_optim_png.log
+	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 advpng -z4 >> /tmp/image_optim_png.log
+	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/image_optim_png.log
 
+	# deciding for which file to use is easy for cpu,
+	# waiting for i/o, no need to parallelize it.
 	for i in $(git ls-files ./ | grep "\.png$") ; do
 		if [[ `du -b $i | awk '{print $1}'` -gt `du -b $i.foo | awk '{print $1}'` ]] ; then
 			mv $i.foo $i
