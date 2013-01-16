@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [[ $(git rev-parse --is-inside-work-tree) != "true" ]] >& /dev/null ; then
+	echo "fatal: Not a git repository!"
+	echo "Make sure to be in a git repo!"
+	echo "Exiting"
+	exit 2
+fi
+
 echo "WARNING, this script is supposed to be run in a git repo"
 echo "We will create a new branch now which the scriptwill work in."
 git branch script/image_optim
