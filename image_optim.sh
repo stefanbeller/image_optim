@@ -40,12 +40,8 @@ timeend()
 	TD=`calc $TE - $TS`
 }
 
-for i in $(git ls-files ./ | grep -e "\.jpg$" -e "\.jpeg") ; do
-	timestart 
-	jpegoptim --strip-all $i >> /tmp/mytrimage_jpeg.log
-	timeend
-	echo $TD $i
-done &
+git ls-files ./ | grep -e "\.jpg$" -e "\.jpeg" | xargs -P 0 -n 1 jpegoptim --strip-all >> /tmp/mytrimage_jpeg.log
+
 
 for i in $(git ls-files ./ | grep "\.png$"); do # png
 	timestart
