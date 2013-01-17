@@ -73,7 +73,7 @@ png_optimize_all()
 		numberoffiles=$(echo ${filelist} | wc -w)
 		print "starting to optimize ${numberoffiles} pngs."
 		timestart
-		echo ${filelist} | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5 >> "${LOGFILE}"
+		echo ${filelist} | xargs -P ${cpucores} -n 1 optipng  -zc1-9 -zm1-9 -zs0-3 -f0-5  |& grep "\ Processing" >> "${LOGFILE}" 
 		echo ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> "${LOGFILE}"
 		# we need to call xargs 2 times: the first time to separate the input strings,
 		# the second time to have -I {} working to place the inputs name multiple time in the
