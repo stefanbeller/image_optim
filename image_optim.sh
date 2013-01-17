@@ -67,14 +67,15 @@ png_optimize_all()
 {
 	print "starting to optimize pngs"
 	filelist=$(git ls-files ./ | grep "\.png$")
+	LOGFILE="/tmp/image_optim_png.log"
 
 	while [ "${filelist}" != "" ] ; do
 		numberoffiles=$(echo ${filelist} | wc -w)
 		print "starting to optimize ${numberoffiles} pngs."
 		timestart
-		echo ${filelist} | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5  >> /tmp/image_optim_png.log
-		echo ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> /tmp/image_optim_png.log
-		echo ${filelist} | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/image_optim_png.log
+		echo ${filelist} | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5 >> ${LOGFILE}
+		echo ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> ${LOGFILE}
+		echo ${filelist} | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> ${LOGFILE}
 
 		wait
 		# deciding for which file to use is easy for cpu,
