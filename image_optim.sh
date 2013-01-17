@@ -68,7 +68,7 @@ png_optimize_all()
 	print "starting to optimize pngs"
 	filelist=$(git ls-files ./ | grep "\.png$")
 
-	while [ ${filelist} != "" ] ; do
+	while [ "${filelist}" != "" ] ; do
 		numberoffiles=$(echo ${filelist} | wc -w)
 		print "starting to optimize ${numberoffiles} pngs."
 		timestart
@@ -76,6 +76,7 @@ png_optimize_all()
 		cat ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> /tmp/image_optim_png.log
 		cat ${filelist} | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/image_optim_png.log
 
+		wait
 		# deciding for which file to use is easy for cpu,
 		# waiting for i/o, no need to parallelize it.
 		newfilelist=""
