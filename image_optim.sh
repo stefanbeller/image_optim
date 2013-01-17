@@ -78,7 +78,7 @@ png_optimize_all()
 		# we need to call xargs 2 times: the first time to separate the input strings,
 		# the second time to have -I {} working to place the inputs name multiple time in the
 		# output command
-		echo ${filelist} | xargs -P 1 -n 1 | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> "${LOGFILE}"
+		echo ${filelist} | xargs -P 1 -n 1 | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo |& grep -v "\ |\ " >> "${LOGFILE}"
 
 		# deciding for which file to use is easy for cpu,
 		# waiting for i/o, no need to parallelize it.
