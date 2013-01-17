@@ -59,74 +59,47 @@ jpeg_remove_comment_and_exiv()
 	timestart
 	git ls-files ./ | grep -e "\.jpg$" -e "\.jpeg" | xargs -P ${cpucores} -n 1 jpegoptim --strip-all >> /tmp/image_optim_jpeg.log
 	timeend
+	wait
 	print "$TD"
 }
 
 png_optimize_all()
 {
-	timestart
 	print "starting to optimize pngs"
-	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5  >> /tmp/image_optim_png.log
-	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 advpng -z4 >> /tmp/image_optim_png.log
-	git ls-files ./ | grep "\.png$" | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/image_optim_png.log
+	filelist=$(git ls-files ./ | grep "\.png$")
 
-	# deciding for which file to use is easy for cpu,
-	# waiting for i/o, no need to parallelize it.
-	for i in $(git ls-files ./ | grep "\.png$") ; do
-		if [[ `du -b $i | awk '{print $1}'` -gt `du -b $i.foo | awk '{print $1}'` ]] ; then
-			mv $i.foo $i
-		else
-			rm $i.foo
-		fi
+	while [ ${filelist} != "" ] ; do
+		numberoffiles=$(echo ${filelist} | wc -w)
+		print "starting to optimize ${numberoffiles} pngs."
+		timestart
+		cat ${filelist} | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5  >> /tmp/image_optim_png.log
+		cat ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> /tmp/image_optim_png.log
+		cat ${filelist} | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/image_optim_png.log
+
+		# deciding for which file to use is easy for cpu,
+		# waiting for i/o, no need to parallelize it.
+		newfilelist=""
+		for i in ${filelist} ; do
+			if [[ `du -b $i | awk '{print $1}'` -gt `du -b $i.foo | awk '{print $1}'` ]] ; then
+				mv $i.foo $i
+				newfilelist="${newfilelist} $i"
+			else
+				rm $i.foo
+			fi
+		done
+		filelist=${newfilelist}
+
+		date=`date`
+		git commit -a -m "image_optim $date"
+
+		timeend
+		print "a run optimizing pngs took $TD"
 	done
-	timeend
-	print "optimizing pngs took $TD"
+	wait
 }
 
 timestartglobal
 make_sure_we_are_safe
 jpeg_remove_comment_and_exiv
 png_optimize_all
-wait
-
-
-git status | grep "modified" | awk '{print $3}' > /tmp/image_optim.todo #reprocess already changed images
-todonr=`cat /tmp/image_optim.todo | wc -l`
-echo $todonr todo
-date=`date`
-git commit -a -m "image_optim $date"
-
-while [ $todonr -gt 0 ] ; do
-	for i in $(cat /tmp/image_optim.todo | grep -e "\.jpg$" -e "\.jpeg") ; do
-		timestart
-		jpegoptim -f --strip-all $i >> /tmp/image_optim_jpeg.log
-		timeend
-		echo $TD $i
-	done &
-
-
-
-	for i in $(cat /tmp/image_optim.todo | grep "\.png$"); do  #png
-		timestart
-		optipng -zc1-9 -zm1-9 -zs0-3 -f0-5 $i >> /tmp/image_optim_png.log
-		advpng -z4 $i >> /tmp/image_optim_png.log
-		pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time $i $i.foo  >> /tmp/image_optim_png.log
-		#find out if we actually save some bytes or not
-		if [[ `du -b $i | awk '{print $1}'` -gt `du -b $i.foo | awk '{print $1}'` ]] ; then
-			mv $i.foo $i
-		else
-			rm $i.foo
-		fi
-		timeend
-		echo $TD $i
-	done &
-	wait
-
-git status | grep "modified" | awk '{print $3}' > /tmp/image_optim.todo
-todonr=`cat /tmp/image_optim.todo | wc -l`
-echo $todonr todo
-date=`date`
-git commit -a -m "image_optim $date"
-done
-
 timeendglobal
