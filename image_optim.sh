@@ -2,7 +2,7 @@
 #TODO: also use pngout ?
 
 echo "To kill the script, run"
-echo "while true ;do ; killall optipng ; killall advpng ; killall pngcrush ; done"
+echo "while true ; do killall optipng ; killall advpng ; killall pngcrush ; done"
 echo "for a while"
 
 VERBOSE=true
