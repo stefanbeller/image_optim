@@ -72,9 +72,9 @@ png_optimize_all()
 		numberoffiles=$(echo ${filelist} | wc -w)
 		print "starting to optimize ${numberoffiles} pngs."
 		timestart
-		cat ${filelist} | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5  >> /tmp/image_optim_png.log
-		cat ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> /tmp/image_optim_png.log
-		cat ${filelist} | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/image_optim_png.log
+		echo ${filelist} | xargs -P ${cpucores} -n 1 optipng -zc1-9 -zm1-9 -zs0-3 -f0-5  >> /tmp/image_optim_png.log
+		echo ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> /tmp/image_optim_png.log
+		echo ${filelist} | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo >> /tmp/image_optim_png.log
 
 		wait
 		# deciding for which file to use is easy for cpu,
