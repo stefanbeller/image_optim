@@ -52,7 +52,6 @@ make_sure_we_are_safe()
 	echo "Done"
 }
 
-
 git_commit()
 {
 	date=`date`
@@ -60,8 +59,6 @@ git_commit()
 	git commit -a -m "image_optim $date"
 
 }
-
-
 
 jpeg_remove_comment_and_exiv()
 {
@@ -71,8 +68,6 @@ jpeg_remove_comment_and_exiv()
 	timeend
 	print "$TD"
 }
-
-
 
 png_optimize_all()
 {
@@ -108,7 +103,6 @@ png_optimize_all()
 
 		timeend
 		print "a run optimizing pngs took $TD"
-		git_commit
 		filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
 	done
 }
