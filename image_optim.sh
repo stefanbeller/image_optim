@@ -58,7 +58,7 @@ git_commit()
 	date=`date`
 	git status
 	git commit -a -m "image_optim $date"
-	git commit --ammend --author="imageoptim"
+
 }
 
 
@@ -108,7 +108,7 @@ png_optimize_all()
 		done
 		git_commit
 		png_optimize_all
-		filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'
+		filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
 	fi
 }
 
