@@ -69,7 +69,6 @@ jpeg_remove_comment_and_exiv()
 	timestart
 	git ls-files ./ | grep -e "\.jpg$" -e "\.jpeg" | xargs -P ${cpucores} -n 1 jpegoptim --strip-all >> /tmp/image_optim_jpeg.log
 	timeend
-	wait
 	print "$TD"
 }
 
