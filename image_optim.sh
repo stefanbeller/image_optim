@@ -72,7 +72,12 @@ jpeg_remove_comment_and_exiv()
 	print "$TD"
 }
 
-filelist=`git ls-files ./ | grep "\.png$"`
+
+if [ "`git log -1 --pretty="%B" | awk '{print $1}'| sed '$d'`" == "image_optim" ] ; then
+	filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
+else
+	filelist=`git ls-files ./ | grep "\.png$"`
+fi
 png_optimize_all()
 {
 	if [ ! -z "${filelist}" ] ; then
