@@ -73,48 +73,44 @@ jpeg_remove_comment_and_exiv()
 }
 
 
-if [ "`git log -1 --pretty="%B" | awk '{print $1}'| sed '$d'`" == "image_optim" ] ; then
-	filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
-else
-	filelist=`git ls-files ./ | grep "\.png$"`
-fi
+
 png_optimize_all()
 {
-	if [ ! -z "${filelist}" ] ; then
-		print "starting to optimize pngs"
-		LOGFILE="/tmp/image_optim_png.log"
+	print "starting to optimize pngs"
+	LOGFILE="/tmp/image_optim_png.log"
 
-		while [ "${filelist}" != "" ] ; do
-			numberoffiles=$(echo ${filelist} | wc -w)
-			print "starting to optimize ${numberoffiles} pngs."
-			timestart
-			echo ${filelist} | xargs -P ${cpucores} -n 1 optipng  -zc1-9 -zm1-9 -zs0-3 -f0-5  |& grep "\ Processing" >> "${LOGFILE}" 
-			echo ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> "${LOGFILE}"
-			# we need to call xargs 2 times: the first time to separate the input strings,
-			# the second time to have -I {} working to place the inputs name multiple time in the
-			# output command
-			echo ${filelist} | xargs -P 1 -n 1 | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo |& grep -v "\ |\ " >> "${LOGFILE}"
-
-			# deciding for which file to use is easy for cpu,
-			# waiting for i/o, no need to parallelize it.
-			newfilelist=""
-			for i in ${filelist} ; do
-				if [[ `du -b $i | awk '{print $1}'` -gt `du -b $i.foo | awk '{print $1}'` ]] ; then
-					mv $i.foo $i
-					newfilelist="${newfilelist} $i"
-				else
-					rm $i.foo
-				fi
-			done
-			filelist=${newfilelist}
-
-			timeend
-			print "a run optimizing pngs took $TD"
-		done
-		git_commit
-		png_optimize_all
+	if [ "`git log -1 --pretty="%B" | awk '{print $1}'| sed '$d'`" == "image_optim" ] ; then
 		filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
+	else
+		filelist=`git ls-files ./ | grep "\.png$"`
 	fi
+
+	while [ "${filelist}" != "" ] ; do
+		numberoffiles=$(echo ${filelist} | wc -w)
+		print "starting to optimize ${numberoffiles} pngs."
+		timestart
+		echo ${filelist} | xargs -P ${cpucores} -n 1 optipng  -zc1-9 -zm1-9 -zs0-3 -f0-5  |& grep "\ Processing" >> "${LOGFILE}"
+		echo ${filelist} | xargs -P ${cpucores} -n 1 advpng -z4 >> "${LOGFILE}"
+		# we need to call xargs 2 times: the first time to separate the input strings,
+		# the second time to have -I {} working to place the inputs name multiple time in the
+		# output command
+		echo ${filelist} | xargs -P 1 -n 1 | xargs -P ${cpucores} -n 1 -I '{}' pngcrush -rem gAMA -rem alla -rem cHRM -rem iCCP -rem sRGB -rem time {} {}.foo |& grep -v "\ |\ " >> "${LOGFILE}"
+
+		# deciding for which file to use is easy for cpu,
+		# waiting for i/o, no need to parallelize it.
+		for i in ${filelist} ; do
+			if [[ `du -b $i | awk '{print $1}'` -gt `du -b $i.foo | awk '{print $1}'` ]] ; then
+				mv $i.foo $i
+			else
+				rm $i.foo
+			fi
+		done
+
+		timeend
+		print "a run optimizing pngs took $TD"
+		git_commit
+		filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
+	done
 }
 
 timestartglobal
