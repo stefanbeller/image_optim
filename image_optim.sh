@@ -100,13 +100,14 @@ png_optimize_all()
 		newfilelist=""
 		for i in ${filelist} ; do
 			# if the file was changed it needs to be rerun:
-			if git status --porcelain icons.png 2>/dev/null | grep "^ M" ; then
+			changed=$(git status --porcelain $1 2>/dev/null | grep "^ M")
+			if [[ "${changed}" != "" ]] ; then
 				git add $i
-				echo "adding file $i"
 				newfilelist="${newfilelist} $i"
 			fi
 		done
 		filelist="${newfilelist}"
+
 		timeend
 		print "a run optimizing pngs took $TD"
 	done
