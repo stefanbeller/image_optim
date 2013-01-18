@@ -74,11 +74,7 @@ png_optimize_all()
 	print "starting to optimize pngs"
 	LOGFILE="/tmp/image_optim_png.log"
 
-	if [ "`git log -1 --pretty="%B" | awk '{print $1}'| sed '$d'`" == "image_optim" ] ; then
-		filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
-	else
-		filelist=`git ls-files ./ | grep "\.png$"`
-	fi
+	filelist=`git ls-files ./ | grep "\.png$"`
 
 	while [ "${filelist}" != "" ] ; do
 		numberoffiles=$(echo ${filelist} | wc -w)
@@ -101,10 +97,18 @@ png_optimize_all()
 			fi
 		done
 
+		newfilelist=""
+		for i in ${filelist} ; do
+			# if the file was changed it needs to be rerun:
+			if git status --porcelain icons.png 2>/dev/null | grep "^ M" ; then
+				git add $i
+				echo "adding file $i"
+				newfilelist="${newfilelist} $i"
+			fi
+		done
+		filelist="${newfilelist}"
 		timeend
 		print "a run optimizing pngs took $TD"
-		git_commit
-		filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
 	done
 }
 
