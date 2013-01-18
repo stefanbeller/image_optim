@@ -93,8 +93,6 @@ png_optimize_all()
 		done
 		filelist=${newfilelist}
 
-		date=`date`
-		git commit -a -m "image_optim $date"
 
 		timeend
 		print "a run optimizing pngs took $TD"
@@ -102,8 +100,16 @@ png_optimize_all()
 	wait
 }
 
+git_commit()
+{
+	date=`date`
+	git commit -a -m "image_optim $date"
+	git commit --ammend --author="imageoptim"
+}
+
 timestartglobal
 make_sure_we_are_safe
 jpeg_remove_comment_and_exiv
 png_optimize_all
+git_commit
 timeendglobal
