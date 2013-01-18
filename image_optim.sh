@@ -53,6 +53,16 @@ make_sure_we_are_safe()
 }
 
 
+git_commit()
+{
+	date=`date`
+	git status
+	git commit -a -m "image_optim $date"
+	git commit --ammend --author="imageoptim"
+}
+
+
+
 jpeg_remove_comment_and_exiv()
 {
 	print "Removing comments and exiv data from jpegs."
@@ -98,13 +108,6 @@ png_optimize_all()
 		print "a run optimizing pngs took $TD"
 	done
 	wait
-}
-
-git_commit()
-{
-	date=`date`
-	git commit -a -m "image_optim $date"
-	git commit --ammend --author="imageoptim"
 }
 
 timestartglobal
