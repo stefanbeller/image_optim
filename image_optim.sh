@@ -103,6 +103,7 @@ png_optimize_all()
 
 		timeend
 		print "a run optimizing pngs took $TD"
+		git_commit
 		filelist=`git log -1 --stat --pretty="%b" | sed '$d' | awk '{print $1}'`
 	done
 }
